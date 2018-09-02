@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #define KEYCMD_LED		0xed
+
 void HariMain(void)
 {
 	struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO;
