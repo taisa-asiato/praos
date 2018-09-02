@@ -17,8 +17,10 @@
 		GLOBAL	_load_tr, _farjmp
 		GLOBAL	_taskswitch4, _taskswitch3
 		GLOBAL	_memtest_sub
+		GLOBAL	_asm_cons_putchar
 		EXTERN	_inthandler20, _inthandler21
 		EXTERN	_inthandler27, _inthandler2c
+		EXTERN	_cons_putchar
 
 [SECTION .text]
 
@@ -218,3 +220,14 @@ _taskswitch3:
 _farjmp:	; void farjmp( int eip, int cs )
 		JMP		FAR [ESP+4]
 		RET
+
+_asm_cons_putchar:
+		PUSH		1
+		AND		EAX, 0xff ; AHやEAXの上位を0にしてEAXに文字コードが入った状態にする
+		PUSH		EAX
+		PUSH		DWORD [0x0fec] ; メモリの内容を読み込んでその値をPUSHする
+		CALL		_cons_putchar
+		ADD		ESP, 12 ; スタックに積んだデータを捨てる
+		RET
+
+
