@@ -250,12 +250,12 @@ struct CONSOLE
 void console_task(struct SHEET *sheet, unsigned int memtotal);
 void cons_newline( struct CONSOLE * cons );
 void cons_putchar( struct CONSOLE * cons, int chr, char move );
-void cmd_hlt( struct CONSOLE * cons, int * fat );
 void cmd_type( struct CONSOLE * cons, int * fat, char * cmdline );
 void cmd_dir( struct CONSOLE * cons );
 void cmd_cls( struct CONSOLE * cons );
 void cmd_mem( struct CONSOLE * cons, unsigned int memtotal );
 void cons_runcmd( char * cmdline, struct CONSOLE * cons, int * fat, unsigned int memtotal );
+int cmd_app( struct CONSOLE * cons, int * fat, char * cmdline );
 
 
 /* file.c */
