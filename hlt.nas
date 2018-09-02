@@ -1,6 +1,15 @@
 [BITS 32]
-	MOV	AL, 'A'
-	CALL	2*8:0xbe7
+	MOV	AL, 'H'
+	INT	0x40
+	MOV	AL, 'E'
+	INT	0x40
+	MOV	AL, 'L'
+	INT	0x40
+	MOV	AL, 'L'
+	INT	0x40
+	MOV	AL, 'O'
+	INT	0x40
+	RETF
 
 fin:
 	HLT
