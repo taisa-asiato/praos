@@ -74,10 +74,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 					cons_putchar( &cons, ' ', 0 );
 					cmdline[ cons.cur_x / 8 - 2 ] = 0;
 					cons_newline( &cons );
-
-					/* コマンド実行 */
 					cons_runcmd( cmdline, &cons, fat, memtotal );
-					/* プロンプト表示 */
 					cons_putchar( &cons, '>', 1 );
 				}
 				else  
@@ -249,7 +246,7 @@ void cmd_dir( struct CONSOLE * cons )
 		{
 			if ( ( finfo[i].type & 0x18 ) == 0 )
 			{
-				sprintf( s, "filename.ext %7d", finfo[i].size );
+				sprintf( s, "filename.ext   %7d\n", finfo[i].size );
 				for( j = 0 ; j < 8 ; j++ )
 				{
 					s[j] = finfo[i].name[j];
@@ -322,8 +319,18 @@ int cmd_app( struct CONSOLE * cons, int * fat, char * cmdline )
 	if ( finfo != 0 )
 	{	/* ファイルが見つかった場合 */
 		p = ( char * ) memman_alloc_4k( memman, finfo->size );
+		*( ( int * ) 0xfe8 ) = ( int ) p;
 		file_loadfile( finfo->clustno, finfo->size, p, fat, ( char * ) ( ADR_DISKIMG + 0x003e00 ) );
 		set_segmdesc( gdt + 1003, finfo->size - 1, ( int ) p, AR_CODE32_ER );
+		if ( finfo->size >= 8 && strncmp( p+4, "Hari", 4) == 0 )
+		{
+			p[0] = 0xe8;
+			p[1] = 0x16;
+			p[2] = 0x00;
+			p[3] = 0x00;
+			p[4] = 0x00;
+			p[5] = 0xcb;
+		}
 		farcall( 0, 1003 * 8 );
 		memman_free_4k( memman, ( int ) p, finfo->size );
 		cons_newline( cons );
@@ -355,6 +362,7 @@ void cons_putstr1( struct CONSOLE * cons, char * s, int l )
 
 void hrb_api( int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax )
 {
+	int cs_base = *( ( int * ) 0xfe8 );
 	struct CONSOLE * cons = ( struct CONSOLE * ) *( ( int * ) 0x0fec );
 	if ( edx == 1 )
 	{
@@ -362,11 +370,11 @@ void hrb_api( int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int
 	}
 	else if ( edx == 2 )
 	{
-		cons_putstr0( cons, ( char * ) ebx );
+		cons_putstr0( cons, ( char * ) ebx + cs_base );
 	}
 	else if ( edx == 3 )
 	{
-		cons_putstr1( cons, ( char * ) ebx, ecx );
+		cons_putstr1( cons, ( char * ) ebx + cs_base, ecx );
 	}
 
 	return;
