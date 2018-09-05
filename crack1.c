@@ -1,6 +1,5 @@
-void HariMain( void )
+void HariMain(void)
 {
-	*( ( char * ) 0x00102600 ) = 0;
-
+	*((char *) 0x00102600) = 0;
 	return;
 }

@@ -8,7 +8,7 @@ struct BOOTINFO { /* 0x0ff0-0x0fff */
 	char *vram;
 };
 #define ADR_BOOTINFO	0x00000ff0
-#define ADR_DISKIMG	0x00100000
+#define ADR_DISKIMG		0x00100000
 
 /* naskfunc.nas */
 void io_hlt(void);
@@ -23,26 +23,25 @@ void load_gdtr(int limit, int addr);
 void load_idtr(int limit, int addr);
 int load_cr0(void);
 void store_cr0(int cr0);
-void asm_inthandler0d( void );
+void load_tr(int tr);
+void asm_inthandler0d(void);
 void asm_inthandler20(void);
 void asm_inthandler21(void);
 void asm_inthandler27(void);
 void asm_inthandler2c(void);
 unsigned int memtest_sub(unsigned int start, unsigned int end);
-void farjmp( int eip, int cs );
-void farcall( int eip, int cs );
-void asm_hrb_api( void );
+void farjmp(int eip, int cs);
+void farcall(int eip, int cs);
+void asm_hrb_api(void);
 void start_app(int eip, int cs, int esp, int ds);
 
-
 /* fifo.c */
-struct FIFO32
-{
-	int * buf;
+struct FIFO32 {
+	int *buf;
 	int p, q, size, free, flags;
-	struct TASK * task;
+	struct TASK *task;
 };
-void fifo32_init(struct FIFO32 *fifo, int size, int *buf, struct TASK * task );
+void fifo32_init(struct FIFO32 *fifo, int size, int *buf, struct TASK *task);
 int fifo32_put(struct FIFO32 *fifo, int data);
 int fifo32_get(struct FIFO32 *fifo);
 int fifo32_status(struct FIFO32 *fifo);
@@ -95,8 +94,8 @@ void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
 #define ADR_BOTPAK		0x00280000
 #define LIMIT_BOTPAK	0x0007ffff
 #define AR_DATA32_RW	0x4092
-#define AR_TSS32	0x0089
 #define AR_CODE32_ER	0x409a
+#define AR_TSS32		0x0089
 #define AR_INTGATE32	0x008e
 
 /* int.c */
@@ -118,9 +117,7 @@ void inthandler27(int *esp);
 /* keyboard.c */
 void inthandler21(int *esp);
 void wait_KBC_sendready(void);
-void init_keyboard( struct FIFO32 * fifo, int data0 );
-//extern struct FIFO32 * keyfifo;
-//extern int keydata0;
+void init_keyboard(struct FIFO32 *fifo, int data0);
 #define PORT_KEYDAT		0x0060
 #define PORT_KEYCMD		0x0064
 
@@ -130,10 +127,8 @@ struct MOUSE_DEC {
 	int x, y, btn;
 };
 void inthandler2c(int *esp);
-void enable_mouse( struct FIFO32 * fifo, int data0, struct MOUSE_DEC *mdec);
+void enable_mouse(struct FIFO32 *fifo, int data0, struct MOUSE_DEC *mdec);
 int mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat);
-//extern struct FIFO32 * mousefifo;
-//extern int mousedata0;
 
 /* memory.c */
 #define MEMMAN_FREES		4090	/* これで約32KB */
@@ -177,13 +172,13 @@ void sheet_free(struct SHEET *sht);
 /* timer.c */
 #define MAX_TIMER		500
 struct TIMER {
-	struct TIMER * next;
+	struct TIMER *next;
 	unsigned int timeout, flags;
 	struct FIFO32 *fifo;
-	unsigned char data;
+	int data;
 };
 struct TIMERCTL {
-	unsigned int count, next, using;
+	unsigned int count, next;
 	struct TIMER *t0;
 	struct TIMER timers0[MAX_TIMER];
 };
@@ -196,47 +191,40 @@ void timer_settime(struct TIMER *timer, unsigned int timeout);
 void inthandler20(int *esp);
 
 /* mtask.c */
-#define MAX_TASKS 1000 /* 最大タスク数 */
-#define TASK_GDT0 3	/* TSSをGDTの何番目から割りあてるのか */
-#define MAX_TASKS_LV  100
-#define MAX_TASKLEVELS 10
+#define MAX_TASKS		1000	/* 最大タスク数 */
+#define TASK_GDT0		3		/* TSSをGDTの何番から割り当てるのか */
+#define MAX_TASKS_LV	100
+#define MAX_TASKLEVELS	10
 struct TSS32 {
 	int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3;
 	int eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;
 	int es, cs, ss, ds, fs, gs;
 	int ldtr, iomap;
 };
-
 struct TASK {
-	int sel, flags;
+	int sel, flags; /* selはGDTの番号のこと */
 	int level, priority;
 	struct FIFO32 fifo;
 	struct TSS32 tss;
 };
-
 struct TASKLEVEL {
-	int running;
-	int now;
-	struct TASK * tasks[MAX_TASKS_LV];
+	int running; /* 動作しているタスクの数 */
+	int now; /* 現在動作しているタスクがどれだか分かるようにするための変数 */
+	struct TASK *tasks[MAX_TASKS_LV];
 };
-
 struct TASKCTL {
-	int now_lv;
-	char lv_change;
+	int now_lv; /* 現在動作中のレベル */
+	char lv_change; /* 次回タスクスイッチのときに、レベルも変えたほうがいいかどうか */
 	struct TASKLEVEL level[MAX_TASKLEVELS];
-	struct TASK  tasks0[MAX_TASKS];
+	struct TASK tasks0[MAX_TASKS];
 };
-extern struct TIMER * task_timer;
-struct TASK * task_init( struct MEMMAN * memman );
-struct TASK * task_alloc( void );
-void task_run( struct TASK * task, int level, int priority );
-void task_switch( void );
-void task_sleep( struct TASK * task );
-struct TASK * task_now( void );
-void task_add( struct TASK * task );
-void task_remove( struct TASK * task );
-void task_switchsub( void );
-void task_idle( void );
+extern struct TIMER *task_timer;
+struct TASK *task_now(void);
+struct TASK *task_init(struct MEMMAN *memman);
+struct TASK *task_alloc(void);
+void task_run(struct TASK *task, int level, int priority);
+void task_switch(void);
+void task_sleep(struct TASK *task);
 
 /* window.c */
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
@@ -245,36 +233,32 @@ void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c);
 void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
 
 /* console.c */
-struct CONSOLE
-{
-	struct SHEET * sht;
+struct CONSOLE {
+	struct SHEET *sht;
 	int cur_x, cur_y, cur_c;
 };
 void console_task(struct SHEET *sheet, unsigned int memtotal);
-void cons_newline( struct CONSOLE * cons );
-void cons_putchar( struct CONSOLE * cons, int chr, char move );
-void cmd_type( struct CONSOLE * cons, int * fat, char * cmdline );
-void cmd_dir( struct CONSOLE * cons );
-void cmd_cls( struct CONSOLE * cons );
-void cmd_mem( struct CONSOLE * cons, unsigned int memtotal );
-void cons_runcmd( char * cmdline, struct CONSOLE * cons, int * fat, unsigned int memtotal );
-int cmd_app( struct CONSOLE * cons, int * fat, char * cmdline );
-void cons_putstr0( struct CONSOLE * cons, char *s );
-void cons_putstr1( struct CONSOLE * cons, char * s, int l );
-void hrb_api( int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax );
-int inthandler0d( int *esp );
-
+void cons_putchar(struct CONSOLE *cons, int chr, char move);
+void cons_newline(struct CONSOLE *cons);
+void cons_putstr0(struct CONSOLE *cons, char *s);
+void cons_putstr1(struct CONSOLE *cons, char *s, int l);
+void cons_runcmd(char *cmdline, struct CONSOLE *cons, int *fat, unsigned int memtotal);
+void cmd_mem(struct CONSOLE *cons, unsigned int memtotal);
+void cmd_cls(struct CONSOLE *cons);
+void cmd_dir(struct CONSOLE *cons);
+void cmd_type(struct CONSOLE *cons, int *fat, char *cmdline);
+int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline);
+void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
+int inthandler0d(int *esp);
 
 /* file.c */
-
-struct FILEINFO
-{
+struct FILEINFO {
 	unsigned char name[8], ext[3], type;
 	char reserve[10];
 	unsigned short time, date, clustno;
 	unsigned int size;
 };
-void file_readfat( int * fat, unsigned char * img );
-void file_loadfile( int clustno, int size, char * buf, int * fat, char *img );
-struct FILEINFO * file_search( char * name, struct FILEINFO * finfo, int max );
+void file_readfat(int *fat, unsigned char *img);
+void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
+struct FILEINFO *file_search(char *name, struct FILEINFO *finfo, int max);
 

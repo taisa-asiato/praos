@@ -5,10 +5,12 @@
 [BITS 32]
 	EXTERN	_load_gdtr
 	EXTERN	_load_idtr
+	EXTERN	_asm_inthandler0d
 	EXTERN	_asm_inthandler20
 	EXTERN	_asm_inthandler21
 	EXTERN	_asm_inthandler27
 	EXTERN	_asm_inthandler2c
+	EXTERN	_asm_hrb_api
 [FILE "dsctbl.c"]
 [SECTION .text]
 	GLOBAL	_init_gdtidt
@@ -62,24 +64,35 @@ L11:
 	CALL	_load_idtr
 	PUSH	142
 	PUSH	16
+	PUSH	_asm_inthandler0d
+	PUSH	2553960
+	CALL	_set_gatedesc
+	PUSH	142
+	PUSH	16
 	PUSH	_asm_inthandler20
 	PUSH	2554112
 	CALL	_set_gatedesc
+	ADD	ESP,40
 	PUSH	142
 	PUSH	16
 	PUSH	_asm_inthandler21
 	PUSH	2554120
 	CALL	_set_gatedesc
-	ADD	ESP,40
 	PUSH	142
 	PUSH	16
 	PUSH	_asm_inthandler27
 	PUSH	2554168
 	CALL	_set_gatedesc
+	ADD	ESP,32
 	PUSH	142
 	PUSH	16
 	PUSH	_asm_inthandler2c
 	PUSH	2554208
+	CALL	_set_gatedesc
+	PUSH	142
+	PUSH	16
+	PUSH	_asm_hrb_api
+	PUSH	2554368
 	CALL	_set_gatedesc
 	LEA	ESP,DWORD [-8+EBP]
 	POP	EBX

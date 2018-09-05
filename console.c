@@ -1,3 +1,4 @@
+/* ƒRƒ“ƒ\[ƒ‹ŠÖŒW */
 
 #include "bootpack.h"
 #include <stdio.h>
@@ -12,10 +13,10 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 	struct CONSOLE cons;
 	char cmdline[30];
 	cons.sht = sheet;
-	cons.cur_x = 8;
+	cons.cur_x =  8;
 	cons.cur_y = 28;
 	cons.cur_c = -1;
-	*( ( int * ) 0x0fec ) = ( int ) &cons;
+	*((int *) 0x0fec) = (int) &cons;
 
 	fifo32_init(&task->fifo, 128, fifobuf, task);
 	timer = timer_alloc();
@@ -23,8 +24,8 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 	timer_settime(timer, 50);
 	file_readfat(fat, (unsigned char *) (ADR_DISKIMG + 0x000200));
 
-	/* ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆè¡¨ç¤º */
-	cons_putchar( &cons, '>', 1 );
+	/* ƒvƒƒ“ƒvƒg•\¦ */
+	cons_putchar(&cons, '>', 1);
 
 	for (;;) {
 		io_cli();
@@ -34,298 +35,261 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 		} else {
 			i = fifo32_get(&task->fifo);
 			io_sti();
-			if (i <= 1) { /* ã‚«ãƒ¼ã‚½ãƒ«ç”¨ã‚¿ã‚¤ãƒ */
+			if (i <= 1) { /* ƒJ[ƒ\ƒ‹—pƒ^ƒCƒ} */
 				if (i != 0) {
-					timer_init(timer, &task->fifo, 0); /* æ¬¡ã¯0ã‚’ */
-					if ( cons.cur_c >= 0 )
-					{
+					timer_init(timer, &task->fifo, 0); /* Ÿ‚Í0‚ğ */
+					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_FFFFFF;
 					}
 				} else {
-					timer_init(timer, &task->fifo, 1); /* æ¬¡ã¯1ã‚’ */
-					if ( cons.cur_c >= 0 )
-					{
+					timer_init(timer, &task->fifo, 1); /* Ÿ‚Í1‚ğ */
+					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_000000;
 					}
 				}
 				timer_settime(timer, 50);
 			}
-			if ( i == 2 )
-			{	/* ã‚«ãƒ¼ã‚½ãƒ«ON */
+			if (i == 2) {	/* ƒJ[ƒ\ƒ‹ON */
 				cons.cur_c = COL8_FFFFFF;
 			}
-			if ( i == 3 )
-			{	/* ã‚«ãƒ¼ã‚½ãƒ«OFF */
-				boxfill8( sheet->buf, sheet->bxsize, COL8_000000, 
-					cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 43 );
+			if (i == 3) {	/* ƒJ[ƒ\ƒ‹OFF */
+				boxfill8(sheet->buf, sheet->bxsize, COL8_000000, cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 15);
 				cons.cur_c = -1;
 			}
-			if (256 <= i && i <= 511) {
+			if (256 <= i && i <= 511) { /* ƒL[ƒ{[ƒhƒf[ƒ^iƒ^ƒXƒNAŒo—Rj */
 				if (i == 8 + 256) {
-					/* ãƒãƒƒã‚¯ã‚¹ãƒšãƒ¼ã‚¹*/
-					if ( cons.cur_x > 16 ) {
-						cons_putchar( &cons, ' ', 0 );
+					/* ƒoƒbƒNƒXƒy[ƒX */
+					if (cons.cur_x > 16) {
+						/* ƒJ[ƒ\ƒ‹‚ğƒXƒy[ƒX‚ÅÁ‚µ‚Ä‚©‚çAƒJ[ƒ\ƒ‹‚ğ1‚Â–ß‚· */
+						cons_putchar(&cons, ' ', 0);
 						cons.cur_x -= 8;
 					}
-				} 
-				else if ( i == 256 + 10 )
-				{	/* Enteræ™‚ */
-					/* ã‚«ãƒ¼ã‚½ãƒ«ã‚’ã‚¹ãƒšãƒ¼ã‚¹ã§æ¶ˆã™ */
-					cons_putchar( &cons, ' ', 0 );
-					cmdline[ cons.cur_x / 8 - 2 ] = 0;
-					cons_newline( &cons );
-					cons_runcmd( cmdline, &cons, fat, memtotal );
-					cons_putchar( &cons, '>', 1 );
-				}
-				else  
-				{	/* ä¸€èˆ¬æ–‡å­— */
-					if (cons.cur_x < 240)
-					{	/* ä¸€æ–‡å­—è¡¨ç¤ºã—ã¦ã‹ã‚‰ã€ã‚«ãƒ¼ã‚½ãƒ«ã‚’1ã¤é€²ã‚ã‚‹ */
-						cmdline[ cons.cur_x / 8 - 2 ] = i - 256;
-						cons_putchar( &cons, i - 256, 1 );
+				} else if (i == 10 + 256) {
+					/* Enter */
+					/* ƒJ[ƒ\ƒ‹‚ğƒXƒy[ƒX‚ÅÁ‚µ‚Ä‚©‚ç‰üs‚·‚é */
+					cons_putchar(&cons, ' ', 0);
+					cmdline[cons.cur_x / 8 - 2] = 0;
+					cons_newline(&cons);
+					cons_runcmd(cmdline, &cons, fat, memtotal);	/* ƒRƒ}ƒ“ƒhÀs */
+					/* ƒvƒƒ“ƒvƒg•\¦ */
+					cons_putchar(&cons, '>', 1);
+				} else {
+					/* ˆê”Ê•¶š */
+					if (cons.cur_x < 240) {
+						/* ˆê•¶š•\¦‚µ‚Ä‚©‚çAƒJ[ƒ\ƒ‹‚ğ1‚Âi‚ß‚é */
+						cmdline[cons.cur_x / 8 - 2] = i - 256;
+						cons_putchar(&cons, i - 256, 1);
 					}
 				}
 			}
-			/* ã‚«ãƒ¼ã‚½ãƒ«å†è¡¨ç¤º */
-			if ( cons.cur_c >= 0 )
-			{
-				boxfill8(sheet->buf, sheet->bxsize, cons.cur_c, 
-					cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 15);
+			/* ƒJ[ƒ\ƒ‹Ä•\¦ */
+			if (cons.cur_c >= 0) {
+				boxfill8(sheet->buf, sheet->bxsize, cons.cur_c, cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 15);
 			}
 			sheet_refresh(sheet, cons.cur_x, cons.cur_y, cons.cur_x + 8, cons.cur_y + 16);
 		}
 	}
 }
 
-void cons_putchar( struct CONSOLE * cons, int chr, char move )
+void cons_putchar(struct CONSOLE *cons, int chr, char move)
 {
 	char s[2];
 	s[0] = chr;
 	s[1] = 0;
-	if ( s[0] == 0x09 )
-	{	/* ã‚¿ãƒ–ã‚³ãƒ¼ãƒ‰ã®å ´åˆ */
-		for ( ; ; )
-		{
-			putfonts8_asc_sht( cons->sht, cons->cur_x, cons->cur_y, 
-				COL8_FFFFFF, COL8_000000, " ", 1 );
+	if (s[0] == 0x09) {	/* ƒ^ƒu */
+		for (;;) {
+			putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, COL8_FFFFFF, COL8_000000, " ", 1);
 			cons->cur_x += 8;
-			if (cons->cur_x == 8 + 240)
-			{
-				cons_newline( cons );
+			if (cons->cur_x == 8 + 240) {
+				cons_newline(cons);
 			}
-			if ( (( cons->cur_x - 8 ) & 0x1f) == 0 )
-			{	/* 32ã§å‰²ã‚Šåˆ‡ã‚ŒãŸã‚‰break */
-				break;
+			if (((cons->cur_x - 8) & 0x1f) == 0) {
+				break;	/* 32‚ÅŠ„‚èØ‚ê‚½‚çbreak */
 			}
 		}
-	}
-	else if ( s[0] == 0x0a )
-	{	/* æ”¹è¡Œ */
-		cons_newline( cons );
-	}
-	else if ( s[0] == 0x0d )
-	{	/* å¾©å¸° */
-		/* ç¾çŠ¶ä½•ã‚‚ã—ãªã„ */
-	}
-	else
-	{
-		putfonts8_asc_sht( cons->sht, cons->cur_x, cons->cur_y,
-				COL8_FFFFFF, COL8_000000, s, 1);
-		if ( move != 0 )
-		{	/* moveãŒ0ã®ã¨ãã¯ã‚«ãƒ¼ã‚½ãƒ«ã‚’é€²ã‚ãªã„ */
+	} else if (s[0] == 0x0a) {	/* ‰üs */
+		cons_newline(cons);
+	} else if (s[0] == 0x0d) {	/* •œ‹A */
+		/* ‚Æ‚è‚ ‚¦‚¸‚È‚É‚à‚µ‚È‚¢ */
+	} else {	/* •’Ê‚Ì•¶š */
+		putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, COL8_FFFFFF, COL8_000000, s, 1);
+		if (move != 0) {
+			/* move‚ª0‚Ì‚Æ‚«‚ÍƒJ[ƒ\ƒ‹‚ği‚ß‚È‚¢ */
 			cons->cur_x += 8;
-			if (cons->cur_x == 8 + 240)
-			{
-				cons_newline( cons );
+			if (cons->cur_x == 8 + 240) {
+				cons_newline(cons);
 			}
 		}
-	
 	}
 	return;
 }
 
-void cons_newline( struct CONSOLE * cons )
+void cons_newline(struct CONSOLE *cons)
 {
 	int x, y;
-	struct SHEET * sheet = cons->sht;
-	if ( cons->cur_y < 28 + 112 )
-	{
-		cons->cur_y += 16;
-	}
-	else 
-	{	/* ã‚³ãƒ³ã‚½ãƒ¼ãƒ«ç”»é¢ã‚’ã‚¹ã‚¯ãƒ­ãƒ¼ãƒ« */
-		for ( y = 28 ; y < 28 + 112 ; y++ )
-		{
-			for ( x = 8 ; x < 8 + 240 ; x++ )
-			{
-				sheet->buf[ x + y * sheet->bxsize ] = 
-					sheet->buf[ x + ( y + 16 ) * sheet->bxsize ];
-			}
-
-		}
-		for ( y = 28 + 112 ; y < 28 + 128 ; y++ )
-		{
-			for ( x = 8 ; x < 8 + 240 ; x++ )
-			{
-				sheet->buf[ x + y * sheet->bxsize ] = COL8_000000;
+	struct SHEET *sheet = cons->sht;
+	if (cons->cur_y < 28 + 112) {
+		cons->cur_y += 16; /* Ÿ‚Ìs‚Ö */
+	} else {
+		/* ƒXƒNƒ[ƒ‹ */
+		for (y = 28; y < 28 + 112; y++) {
+			for (x = 8; x < 8 + 240; x++) {
+				sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + 16) * sheet->bxsize];
 			}
 		}
-		sheet_refresh( sheet, 8, 28, 8 + 240, 28 + 128 );
+		for (y = 28 + 112; y < 28 + 128; y++) {
+			for (x = 8; x < 8 + 240; x++) {
+				sheet->buf[x + y * sheet->bxsize] = COL8_000000;
+			}
+		}
+		sheet_refresh(sheet, 8, 28, 8 + 240, 28 + 128);
 	}
 	cons->cur_x = 8;
 	return;
 }
 
-void cons_runcmd( char * cmdline, struct CONSOLE * cons, int * fat, unsigned int memtotal )
+void cons_putstr0(struct CONSOLE *cons, char *s)
 {
-	if ( strcmp( cmdline, "mem") == 0 )
-	{
-		cmd_mem( cons, memtotal );
+	for (; *s != 0; s++) {
+		cons_putchar(cons, *s, 1);
 	}
-	else if ( strcmp( cmdline, "cls") == 0 )
-	{
-		cmd_cls( cons );
+	return;
+}
+
+void cons_putstr1(struct CONSOLE *cons, char *s, int l)
+{
+	int i;
+	for (i = 0; i < l; i++) {
+		cons_putchar(cons, s[i], 1);
 	}
-	else if ( strcmp( cmdline, "dir") == 0 )
-	{
-		cmd_dir( cons );
-	}
-	else if ( strncmp( cmdline, "type ", 5 ) == 0 )
-	{
-		cmd_type( cons, fat, cmdline );
-	}
-	else if ( cmdline[0] != 0 )
-	{	/* ã‚³ãƒãƒ³ãƒ‰ã§ãªã, ç©ºç™½è¡Œã§ã‚‚ãªã„ */
-		if ( cmd_app( cons, fat, cmdline ) == 0 )
-		{
-			cons_putstr0( cons, "Bad command\n\n" );
+	return;
+}
+
+void cons_runcmd(char *cmdline, struct CONSOLE *cons, int *fat, unsigned int memtotal)
+{
+	if (strcmp(cmdline, "mem") == 0) {
+		cmd_mem(cons, memtotal);
+	} else if (strcmp(cmdline, "cls") == 0) {
+		cmd_cls(cons);
+	} else if (strcmp(cmdline, "dir") == 0) {
+		cmd_dir(cons);
+	} else if (strncmp(cmdline, "type ", 5) == 0) {
+		cmd_type(cons, fat, cmdline);
+	} else if (cmdline[0] != 0) {
+		if (cmd_app(cons, fat, cmdline) == 0) {
+			/* ƒRƒ}ƒ“ƒh‚Å‚Í‚È‚­AƒAƒvƒŠ‚Å‚à‚È‚­A‚³‚ç‚É‹ós‚Å‚à‚È‚¢ */
+			cons_putstr0(cons, "Bad command.\n\n");
 		}
 	}
 	return;
 }
 
-void cmd_mem( struct CONSOLE * cons, unsigned int memtotal )
+void cmd_mem(struct CONSOLE *cons, unsigned int memtotal)
 {
-	/* memã‚³ãƒãƒ³ãƒ‰ */
-	struct MEMMAN * memman = ( struct MEMMAN * ) MEMMAN_ADDR;
-	char s[30];
-	sprintf( s, "total %dMB\n free%dKB\n\n", memtotal / ( 1024 * 1024 ), memman_total( memman ) / 1024 );
-	cons_putstr0( cons, s );
+	struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
+	char s[60];
+	sprintf(s, "total   %dMB\nfree %dKB\n\n", memtotal / (1024 * 1024), memman_total(memman) / 1024);
+	cons_putstr0(cons, s);
 	return;
 }
 
-void cmd_cls( struct CONSOLE * cons )
-{	/* clsã‚³ãƒãƒ³ãƒ‰ */	
+void cmd_cls(struct CONSOLE *cons)
+{
 	int x, y;
-	struct SHEET * sheet = cons->sht;
-	for ( y = 28 ; y < 28 + 128 ; y++ )
-	{
-		for ( x = 8 ; x < 8 + 240 ; x++ )
-		{
-			sheet->buf[ x + y * sheet->bxsize ] = COL8_000000;
+	struct SHEET *sheet = cons->sht;
+	for (y = 28; y < 28 + 128; y++) {
+		for (x = 8; x < 8 + 240; x++) {
+			sheet->buf[x + y * sheet->bxsize] = COL8_000000;
 		}
 	}
-	sheet_refresh( sheet, 8, 28, 8 + 240, 28 + 128 );
+	sheet_refresh(sheet, 8, 28, 8 + 240, 28 + 128);
 	cons->cur_y = 28;
 	return;
 }
 
-void cmd_dir( struct CONSOLE * cons )
+void cmd_dir(struct CONSOLE *cons)
 {
-	/* dirã‚³ãƒãƒ³ãƒ‰ */
-	struct FILEINFO * finfo = ( struct FILEINFO * ) ( ADR_DISKIMG + 0x002600 );
+	struct FILEINFO *finfo = (struct FILEINFO *) (ADR_DISKIMG + 0x002600);
 	int i, j;
 	char s[30];
-	for ( i = 0 ; i < 224 ; i++ )
-	{
-		if ( finfo[i].name[0] == 0x00 )
-		{
+	for (i = 0; i < 224; i++) {
+		if (finfo[i].name[0] == 0x00) {
 			break;
 		}
-		if ( finfo[i].name[0] != 0xe5 )
-		{
-			if ( ( finfo[i].type & 0x18 ) == 0 )
-			{
-				sprintf( s, "filename.ext   %7d\n", finfo[i].size );
-				for( j = 0 ; j < 8 ; j++ )
-				{
+		if (finfo[i].name[0] != 0xe5) {
+			if ((finfo[i].type & 0x18) == 0) {
+				sprintf(s, "filename.ext   %7d\n", finfo[i].size);
+				for (j = 0; j < 8; j++) {
 					s[j] = finfo[i].name[j];
 				}
 				s[ 9] = finfo[i].ext[0];
 				s[10] = finfo[i].ext[1];
 				s[11] = finfo[i].ext[2];
-				cons_putstr0( cons, s );
+				cons_putstr0(cons, s);
 			}
 		}
 	}
-	cons_newline( cons );
+	cons_newline(cons);
 	return;
 }
 
-void cmd_type( struct CONSOLE * cons, int * fat, char * cmdline )
-{	/* typeã‚³ãƒãƒ³ãƒ‰ */
-	/* ãƒ•ã‚¡ã‚¤ãƒ«åã‚’æº–å‚™ã™ã‚‹ */
-	struct MEMMAN * memman = ( struct MEMMAN * ) MEMMAN_ADDR;
-	struct FILEINFO * finfo = file_search( cmdline + 5, ( struct FILEINFO * ) ( ADR_DISKIMG + 0x002600 ), 224 );
-	char * p;
-	int i;
-
-	if ( finfo != 0 )
-	{	/* ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã£ãŸå ´åˆ */
-		p = ( char * ) memman_alloc_4k( memman, finfo->size );
-		file_loadfile( finfo->clustno, finfo->size, p, fat, ( char * ) ( ADR_DISKIMG + 0x003e00 ) );
-		cons_putstr1( cons, p, finfo->size );
-		memman_free_4k( memman, ( int ) p, finfo->size );
+void cmd_type(struct CONSOLE *cons, int *fat, char *cmdline)
+{
+	struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
+	struct FILEINFO *finfo = file_search(cmdline + 5, (struct FILEINFO *) (ADR_DISKIMG + 0x002600), 224);
+	char *p;
+	if (finfo != 0) {
+		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚Á‚½ê‡ */
+		p = (char *) memman_alloc_4k(memman, finfo->size);
+		file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
+		cons_putstr1(cons, p, finfo->size);
+		memman_free_4k(memman, (int) p, finfo->size);
+	} else {
+		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡ */
+		cons_putstr0(cons, "File not found.\n");
 	}
-	else 
-	{	/* ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆ */
-		cons_putstr0( cons, "File not found.\n\n" );
-	}
-	cons_newline( cons );
+	cons_newline(cons);
+	return;
 }
 
-int cmd_app( struct CONSOLE * cons, int * fat, char * cmdline )
+int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 {
-	struct MEMMAN * memman  = ( struct MEMMAN * ) MEMMAN_ADDR;
-	struct FILEINFO * finfo;
-	struct SEGMENT_DESCRIPTOR * gdt = ( struct SEGMENT_DESCRIPTOR * ) ADR_GDT;
-	char name[18], * p, *q;
+	struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
+	struct FILEINFO *finfo;
+	struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *) ADR_GDT;
+	char name[18], *p, *q;
 	int i;
 
-	/* ã‚³ãƒãƒ³ãƒ‰ãƒ©ã‚¤ãƒ³ã‹ã‚‰ãƒ•ã‚¡ã‚¤ãƒ«åã‚’ç”Ÿæˆ */
-	for ( i = 0 ; i < 13 ; i++ )
-	{
-		if ( cmdline[i] <= ' ' )
-		{
+	/* ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“‚©‚çƒtƒ@ƒCƒ‹–¼‚ğ¶¬ */
+	for (i = 0; i < 13; i++) {
+		if (cmdline[i] <= ' ') {
 			break;
 		}
 		name[i] = cmdline[i];
 	}
+	name[i] = 0; /* ‚Æ‚è‚ ‚¦‚¸ƒtƒ@ƒCƒ‹–¼‚ÌŒã‚ë‚ğ0‚É‚·‚é */
 
-	name[i] = '0'; /* æ–‡å­—åˆ—ã®æœ€å¾Œã«0ã‚’æŒ¿å…¥ */
-
-	/* ãƒ•ã‚¡ã‚¤ãƒ«ã‚’æ¢ã™ */
-	finfo = file_search( name, ( struct FILEINFO * ) ( ADR_DISKIMG + 0x002600 ), 224 );
-	if ( finfo == 0 && name[i-1] != '.' )
-	{	/* ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸã®ã§æ‹¡å¼µå­'hrb'ã‚’ã¤ã‘ã¦å†æ¢ç´¢ */
+	/* ƒtƒ@ƒCƒ‹‚ğ’T‚· */
+	finfo = file_search(name, (struct FILEINFO *) (ADR_DISKIMG + 0x002600), 224);
+	if (finfo == 0 && name[i - 1] != '.') {
+		/* Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚Ì‚ÅŒã‚ë‚É".HRB"‚ğ‚Â‚¯‚Ä‚à‚¤ˆê“x’T‚µ‚Ä‚İ‚é */
 		name[i    ] = '.';
 		name[i + 1] = 'H';
 		name[i + 2] = 'R';
 		name[i + 3] = 'B';
-		name[i + 4] =   0;
-		finfo = file_search( name, ( struct FILEINFO * ) ( ADR_DISKIMG + 0x002600), 224 );
+		name[i + 4] = 0;
+		finfo = file_search(name, (struct FILEINFO *) (ADR_DISKIMG + 0x002600), 224);
 	}
 
-	if ( finfo != 0 )
-	{	/* ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã£ãŸå ´åˆ */
-		p = ( char * ) memman_alloc_4k( memman, finfo->size );
-		q = ( char * ) memman_alloc_4k( memman, 64 * 1024 );
-		*( ( int * ) 0xfe8 ) = ( int ) p;
-		file_loadfile( finfo->clustno, finfo->size, p, fat, ( char * ) ( ADR_DISKIMG + 0x003e00 ) );
-		set_segmdesc( gdt + 1003, finfo->size - 1, ( int ) p, AR_CODE32_ER );
-		set_segmdesc( gdt + 1004, 64 * 1024 - 1,   ( int ) q, AR_DATA32_RW );
-		if ( finfo->size >= 8 && strncmp( p+4, "Hari", 4) == 0 )
-		{
+	if (finfo != 0) {
+		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚Á‚½ê‡ */
+		p = (char *) memman_alloc_4k(memman, finfo->size);
+		q = (char *) memman_alloc_4k(memman, 64 * 1024);
+		*((int *) 0xfe8) = (int) p;
+		file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
+		set_segmdesc(gdt + 1003, finfo->size - 1, (int) p, AR_CODE32_ER);
+		set_segmdesc(gdt + 1004, 64 * 1024 - 1,   (int) q, AR_DATA32_RW);
+		if (finfo->size >= 8 && strncmp(p + 4, "Hari", 4) == 0) {
 			p[0] = 0xe8;
 			p[1] = 0x16;
 			p[2] = 0x00;
@@ -333,61 +297,34 @@ int cmd_app( struct CONSOLE * cons, int * fat, char * cmdline )
 			p[4] = 0x00;
 			p[5] = 0xcb;
 		}
-	//	farcall( 0, 1003 * 8 );
-		start_app( 0, 1003 * 8, 64 * 1024, 1004 * 8 );
-		memman_free_4k( memman, ( int ) p, finfo->size );
-		memman_free_4k( memman, ( int ) q, 64 * 1024 );
-		cons_newline( cons );
+		start_app(0, 1003 * 8, 64 * 1024, 1004 * 8);
+		memman_free_4k(memman, (int) p, finfo->size);
+		memman_free_4k(memman, (int) q, 64 * 1024);
+		cons_newline(cons);
 		return 1;
 	}
-
-	/* ãƒ•ã‚¡ã‚¤ãƒ«ãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆ */
+	/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡ */
 	return 0;
 }
 
-void cons_putstr0( struct CONSOLE * cons, char *s )
+void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax)
 {
-	for ( ; *s != 0 ; s++ )
-	{
-		cons_putchar( cons, *s, 1 );
+	int cs_base = *((int *) 0xfe8);
+	struct CONSOLE *cons = (struct CONSOLE *) *((int *) 0x0fec);
+	if (edx == 1) {
+		cons_putchar(cons, eax & 0xff, 1);
+	} else if (edx == 2) {
+		cons_putstr0(cons, (char *) ebx + cs_base);
+	} else if (edx == 3) {
+		cons_putstr1(cons, (char *) ebx + cs_base, ecx);
 	}
-
 	return;
 }
 
-void cons_putstr1( struct CONSOLE * cons, char * s, int l )
+int inthandler0d(int *esp)
 {
-	int i;
-	for ( i = 0 ; i < l ; i++ )
-	{
-		cons_putchar( cons, s[i], 1 );
-	}
+	struct CONSOLE *cons = (struct CONSOLE *) *((int *) 0x0fec);
+	cons_putstr0(cons, "\nINT 0D :\n General Protected Exception.\n");
+	return 1; /* ˆÙíI—¹‚³‚¹‚é */
 }
 
-void hrb_api( int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax )
-{
-	int cs_base = *( ( int * ) 0xfe8 );
-	struct CONSOLE * cons = ( struct CONSOLE * ) *( ( int * ) 0x0fec );
-	if ( edx == 1 )
-	{
-		cons_putchar( cons, eax & 0xff, 1 );
-	}
-	else if ( edx == 2 )
-	{
-		cons_putstr0( cons, ( char * ) ebx + cs_base );
-	}
-	else if ( edx == 3 )
-	{
-		cons_putstr1( cons, ( char * ) ebx + cs_base, ecx );
-	}
-
-	return;
-}
-
-
-int inthandler0d( int *esp )
-{
-	struct CONSOLE * cons = ( struct CONSOLE * ) *( ( int * ) 0x0fec );
-	cons_putstr0( cons, "\nINT 0d :\n General Protected Exception.\n" );
-	return 1;
-}
