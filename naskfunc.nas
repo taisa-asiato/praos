@@ -19,6 +19,7 @@
 		GLOBAL	_memtest_sub
 		GLOBAL	_farjmp, _farcall
 		GLOBAL	_asm_hrb_api, _start_app
+		GLOBAL	_asm_end_app
 		EXTERN	_inthandler20, _inthandler21
 		EXTERN	_inthandler27, _inthandler2c
 		EXTERN	_inthandler0d, _inthandler0c
@@ -303,3 +304,8 @@ _start_app:		; void start_app(int eip, int cs, int esp, int ds, int *tss_esp0 );
 		PUSH		EAX
 		RETF
 
+_asm_end_app:
+		MOV		ESP,[EAX]
+		MOV		DWORD [EAX+4],0
+		POPAD
+		RET
