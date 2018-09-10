@@ -6,7 +6,6 @@
 
 void console_task(struct SHEET *sheet, unsigned int memtotal)
 {
-	struct TIMER *timer;
 	struct TASK *task = task_now();
 	struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
 	int i, fifobuf[128], *fat = (int *) memman_alloc_4k(memman, 4 * 2880);
@@ -19,9 +18,9 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 	*((int *) 0x0fec) = (int) &cons;
 
 	fifo32_init(&task->fifo, 128, fifobuf, task);
-	timer = timer_alloc();
-	timer_init(timer, &task->fifo, 1);
-	timer_settime(timer, 50);
+	cons.timer = timer_alloc();
+	timer_init(cons.timer, &task->fifo, 1);
+	timer_settime(cons.timer, 50);
 	file_readfat(fat, (unsigned char *) (ADR_DISKIMG + 0x000200));
 
 	/* プロンプト表示 */
@@ -37,17 +36,17 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 			io_sti();
 			if (i <= 1) { /* カーソル用タイマ */
 				if (i != 0) {
-					timer_init(timer, &task->fifo, 0); /* 次は0を */
+					timer_init(cons.timer, &task->fifo, 0); /* 次は0を */
 					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_FFFFFF;
 					}
 				} else {
-					timer_init(timer, &task->fifo, 1); /* 次は1を */
+					timer_init(cons.timer, &task->fifo, 1); /* 次は1を */
 					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_000000;
 					}
 				}
-				timer_settime(timer, 50);
+				timer_settime(cons.timer, 50);
 			}
 			if (i == 2) {	/* カーソルON */
 				cons.cur_c = COL8_FFFFFF;
@@ -321,7 +320,7 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 	struct CONSOLE *cons = (struct CONSOLE *) *((int *) 0x0fec);
 	struct SHTCTL *shtctl = (struct SHTCTL *) *((int *) 0x0fe4);
 	struct SHEET *sht;
-	int * reg = &eax + 1;	/* eaxの次の番地 */
+	int * reg = &eax + 1, i;	/* eaxの次の番地 */
 	/* 保存のためのPUSHADを強引に書き換える */
 	/* reg[0] : EDI, reg[1] : ESI, reg[2] : EBP, reg[3] : ESP */
 	/* reg[4] : EBX, reg[5] : EDX, reg[6] : ECX, reg[7] : EAX */
@@ -380,7 +379,36 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 		}
 	} else if ( edx == 14 ) {
 		sheet_free( ( struct SHEET * ) ebx );
-	}
+	} else if ( edx == 15 ) {
+		for (;;) { 
+			io_cli();
+			if ( fifo32_status( &task->fifo) == 0 ) {
+				if ( eax != 0 ) {
+					task_sleep( task );
+				} else {
+					io_sti();
+					reg[7] = -1;
+					return 0;
+				}
+			}
+			i = fifo32_get( &task->fifo );
+			io_sti();
+			if ( i <= 1 ) {
+				timer_init( cons->timer, &task->fifo, 1 );
+				timer_settime( cons->timer, 50 );
+			}
+			if ( i == 2 ) {
+				cons->cur_c = COL8_FFFFFF;
+			}
+			if ( i == 3 ) {
+				cons->cur_c = -1;
+			}
+			if ( 256 <= i && i <= 511 ) {
+				reg[7] = i - 256;
+				return 0;
+			}
+		}
+	} 
 	return 0;
 }
 
