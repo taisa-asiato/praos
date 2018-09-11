@@ -287,6 +287,16 @@ void HariMain(void)
 											mmx = mx;
 											mmy = my;
 										}
+										if ( sht->bxsize - 21 <= x && x < sht->bxsize - 5 && 5 <= y && y < 19 ) {
+											/* [x]ボタンクリック */
+											if ( sht->task != 0 ) {	/* アプリが作ったウィンドウか */
+												cons = ( struct CONSOLE * ) *( ( int * ) 0x0fec );
+												cons_putstr0( cons, "\nBreak(mouse) :\n" );
+												io_cli();
+												task_cons->tss.eax = ( int ) & ( task_cons->tss.esp0 );
+												task_cons->tss.eip = ( int ) & asm_end_app;
+											}
+										}
 										break;
 									}
 								}
