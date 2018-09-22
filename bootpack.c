@@ -43,9 +43,8 @@ void HariMain(void)
 		0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
 		0,   0,   0,   '_', 0,   0,   0,   0,   0,   0,   0,   0,   0,   '|', 0,   0
 	};
-	int key_to = 0, key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
+	int key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
 	struct CONSOLE *cons;
-
 	int j, x, y, mmx = -1, mmy = -1;
 	struct SHEET * sht = 0, *key_win;
 
@@ -190,7 +189,7 @@ void HariMain(void)
 					}
 				}
 				if (i == 256 + 0x1c) {	/* Enter */
-					if (key_to != 0) {	/* コンソールへ */
+					if (key_win != 0) {	/* コンソールへ */
 						fifo32_put(&task_cons->fifo, 10 + 256);
 					}
 				}
@@ -238,6 +237,9 @@ void HariMain(void)
 					task_cons->tss.eip = (int) asm_end_app;
 					io_sti();
 				}
+				if ( i == 256 + 0x57 && shtctl->top > 2 ) {
+					sheet_updown( shtctl->sheets[1], shtctl->top - 1 );
+				}
 				if (i == 256 + 0xfa) {	/* キーボードがデータを無事に受け取った */
 					keycmd_wait = -1;
 				}
@@ -248,10 +250,6 @@ void HariMain(void)
 				/* カーソルの再表示 */
 				if (cursor_c >= 0) {
 					boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x + 7, 43);
-				}
-
-				if ( i == 256 + 0x57 && shtctl->top > 2 ) {
-					sheet_updown( shtctl->sheets[1], shtctl->top - 1 );
 				}
 				sheet_refresh(sht_win, cursor_x, 28, cursor_x + 8, 44);
 			} else if (512 <= i && i <= 767) { /* マウスデータ */
@@ -296,6 +294,7 @@ void HariMain(void)
 												io_cli();
 												task_cons->tss.eax = ( int ) & ( task_cons->tss.esp0 );
 												task_cons->tss.eip = ( int ) & asm_end_app;
+												io_sti();
 											}
 										}
 										break;
@@ -336,7 +335,6 @@ void HariMain(void)
 	}
 }
 
-
 int keywin_off( struct SHEET * key_win, struct SHEET * sht_win, int cur_c, int cur_x )
 {
 	change_wtitle8( key_win, 0 );
@@ -361,6 +359,6 @@ int keywin_on( struct SHEET * key_win, struct SHEET * sht_win, int cur_c )
 			fifo32_put( &key_win->task->fifo, 2 );
 		}
 	}
-
 	return cur_c;
 }
+

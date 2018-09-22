@@ -90,8 +90,7 @@ void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c)
 void change_wtitle8( struct SHEET * sht, char act )
 {
 	int x, y, xsize = sht->bxsize;
-	char c, tc_new, tbc_new, tc_old, *buf = sht->buf;
-
+	char c, tc_new, tbc_new, tc_old, tbc_old, *buf = sht->buf;
 	if ( act != 0 ) {
 		tc_new  = COL8_FFFFFF;
 		tbc_new = COL8_000084;
