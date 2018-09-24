@@ -1,6 +1,6 @@
 OBJS_BOOTPACK = bootpack.obj naskfunc.obj hankaku.obj graphic.obj dsctbl.obj \
 		int.obj fifo.obj keyboard.obj mouse.obj memory.obj sheet.obj timer.obj \
-		mtask.obj window.obj console.obj file.obj
+		mtask.obj window.obj console.obj file.obj 
 
 TOOLPATH = ../z_tools/
 INCPATH  = ../z_tools/haribote/
@@ -127,19 +127,26 @@ lines.bim : lines.obj a_nask.obj Makefile
 		lines.obj a_nask.obj
 
 lines.hrb : lines.bim Makefile
-	$(BIM2HRB) lines.bim lines.hrb 47k
+	$(BIM2HRB) lines.bim lines.hrb 48k
 
 walk.bim : walk.obj a_nask.obj Makefile
 	$(OBJ2BIM) @$(RULEFILE) out:walk.bim stack:1k map:walk.map \
 		walk.obj a_nask.obj
 
 walk.hrb : walk.bim Makefile
-	$(BIM2HRB) walk.bim walk.hrb 47k
+	$(BIM2HRB) walk.bim walk.hrb 48k
 
+noodle.bim : noodle.obj a_nask.obj Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:noodle.bim stack:1k map:noodle.map \
+		noodle.obj a_nask.obj
+
+noodle.hrb : noodle.bim Makefile
+	$(BIM2HRB) noodle.bim noodle.hrb 40k
 
 haribote.img : ipl10.bin haribote.sys Makefile \
 		hello.hrb hello2.hrb a.hrb hello3.hrb hello4.hrb hello5.hrb \
-		winhelo.hrb winhelo2.hrb winhelo3.hrb star1.hrb stars.hrb stars2.hrb lines.hrb walk.hrb
+		winhelo.hrb winhelo2.hrb winhelo3.hrb star1.hrb stars.hrb stars2.hrb \
+		lines.hrb walk.hrb noodle.hrb
 	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:haribote.sys to:@: \
@@ -159,6 +166,7 @@ haribote.img : ipl10.bin haribote.sys Makefile \
 		copy from:stars2.hrb to:@: \
 		copy from:lines.hrb to:@: \
 		copy from:walk.hrb to:@: \
+		copy from:noodle.hrb to:@: \
 		imgout:haribote.img
 
 # ˆê”Ê‹K‘¥
