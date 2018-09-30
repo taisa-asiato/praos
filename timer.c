@@ -119,52 +119,51 @@ void inthandler20(int *esp)
 	return;
 }
 
-int timer_cancel( struct TIMER * timer )
+int timer_cancel(struct TIMER *timer)
 {
 	int e;
-	struct TIMER * t;
+	struct TIMER *t;
 	e = io_load_eflags();
-	io_cli();	/* 設定中にタイマの設定が変化しないようにするため */
-	if ( timer->flags == TIMER_FLAGS_USING ) {	/* 取り消し処理は必要か */
-		if ( timer == timerctl.t0 ) {
+	io_cli();	/* 設定中にタイマの状態が変化しないようにするため */
+	if (timer->flags == TIMER_FLAGS_USING) {	/* 取り消し処理は必要か？ */
+		if (timer == timerctl.t0) {
 			/* 先頭だった場合の取り消し処理 */
 			t = timer->next;
 			timerctl.t0 = t;
-			timerctl.next = t->next;
-
+			timerctl.next = t->timeout;
 		} else {
 			/* 先頭以外の場合の取り消し処理 */
-			/* timerの1つ前を探す */
+			/* timerの一つ前を探す */
 			t = timerctl.t0;
-			for ( ; ; ) {
-				if ( t->next == timer ) {
+			for (;;) {
+				if (t->next == timer) {
 					break;
 				}
 				t = t->next;
 			}
-			t->next = timer->next; /* timer の直前の次がtimerの次を指すようにする */ 
+			t->next = timer->next; /* 「timerの直前」の次が、「timerの次」を指すようにする */
 		}
 		timer->flags = TIMER_FLAGS_ALLOC;
-		io_store_eflags( e );
-		return 1;
+		io_store_eflags(e);
+		return 1;	/* キャンセル処理成功 */
 	}
-	io_store_eflags( e );
-	return 0;
+	io_store_eflags(e);
+	return 0; /* キャンセル処理は不要だった */
 }
 
-void timer_cancelall( struct FIFO32 * fifo ) 
+void timer_cancelall(struct FIFO32 *fifo)
 {
-	int e,i;
-	struct TIMER * t;
+	int e, i;
+	struct TIMER *t;
 	e = io_load_eflags();
-	io_cli();
-	for ( i = 0 ; i < MAX_TIMER ; i++ ) {
+	io_cli();	/* 設定中にタイマの状態が変化しないようにするため */
+	for (i = 0; i < MAX_TIMER; i++) {
 		t = &timerctl.timers0[i];
-		if ( t->flags != 0 && t->flags2 != 0 && t->fifo == fifo ) {
-			timer_cancel( t );
-			timer_free( t );
+		if (t->flags != 0 && t->flags2 != 0 && t->fifo == fifo) {
+			timer_cancel(t);
+			timer_free(t);
 		}
 	}
-	io_store_eflags( e );
+	io_store_eflags(e);
 	return;
 }

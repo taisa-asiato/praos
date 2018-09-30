@@ -1,11 +1,11 @@
-[FORMAT "WCOFF"]				; オブジェクトファイルを作るモード	
-[INSTRSET "i486p"]				; 486の命令まで使いたいという記述
-[BITS 32]						; 32ビットモード用の機械語を作らせる
-[FILE "a_nask.nas"]				; ソースファイル名情報
+[FORMAT "WCOFF"]
+[INSTRSET "i486p"]
+[BITS 32]
+[FILE "a_nask.nas"]
 
 		GLOBAL	_api_putchar
-		GLOBAL	_api_end
 		GLOBAL	_api_putstr0
+		GLOBAL	_api_end
 		GLOBAL	_api_openwin
 		GLOBAL	_api_putstrwin
 		GLOBAL	_api_boxfilwin
@@ -15,13 +15,13 @@
 		GLOBAL	_api_point
 		GLOBAL	_api_refreshwin
 		GLOBAL	_api_linewin
-		GLOBAL 	_api_closewin
+		GLOBAL	_api_closewin
 		GLOBAL	_api_getkey
 		GLOBAL	_api_alloctimer
 		GLOBAL	_api_inittimer
 		GLOBAL	_api_settimer
 		GLOBAL	_api_freetimer
-		GLOBAL 	_api_beep
+		GLOBAL	_api_beep
 
 [SECTION .text]
 
@@ -31,22 +31,22 @@ _api_putchar:	; void api_putchar(int c);
 		INT		0x40
 		RET
 
-_api_end:	; void api_end( void )
-		MOV		EDX,4
-		INT		0x40
-
-_api_putstr0:	; void api_putstr0( char *s )
-		PUSH		EBX
+_api_putstr0:	; void api_putchar(char *s);
+		PUSH	EBX
 		MOV		EDX,2
-		MOV		EBX,[ESP+8]
+		MOV		EBX,[ESP+8]		; s
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_openwin:		; int api_openwin( char * buf, int xsize, int ysize, int col_env, char * title );
-		PUSH		EDI
-		PUSH		ESI
-		PUSH		EBX
+_api_end:	; void api_end(void);
+		MOV		EDX,4
+		INT		0x40
+
+_api_openwin:	; int api_openwin(char *buf, int xsiz, int ysiz, int col_inv, char *title);
+		PUSH	EDI
+		PUSH	ESI
+		PUSH	EBX
 		MOV		EDX,5
 		MOV		EBX,[ESP+16]	; buf
 		MOV		ESI,[ESP+20]	; xsiz
@@ -59,12 +59,11 @@ _api_openwin:		; int api_openwin( char * buf, int xsize, int ysize, int col_env,
 		POP		EDI
 		RET
 
-
-_api_putstrwin:		; void api_putstrwin( int win, int x, int y, int col, int len, char *str );
-		PUSH		EDI
-		PUSH		ESI
-		PUSH		EBP
-		PUSH		EBX
+_api_putstrwin:	; void api_putstrwin(int win, int x, int y, int col, int len, char *str);
+		PUSH	EDI
+		PUSH	ESI
+		PUSH	EBP
+		PUSH	EBX
 		MOV		EDX,6
 		MOV		EBX,[ESP+20]	; win
 		MOV		ESI,[ESP+24]	; x
@@ -79,11 +78,11 @@ _api_putstrwin:		; void api_putstrwin( int win, int x, int y, int col, int len, 
 		POP		EDI
 		RET
 
-_api_boxfilwin:		; void api_boxfilwin( int win, int x0, int y0, int x1, int y1, int col )
-		PUSH		EDI
-		PUSH		ESI
-		PUSH		EBP
-		PUSH		EBX
+_api_boxfilwin:	; void api_boxfilwin(int win, int x0, int y0, int x1, int y1, int col);
+		PUSH	EDI
+		PUSH	ESI
+		PUSH	EBP
+		PUSH	EBX
 		MOV		EDX,7
 		MOV		EBX,[ESP+20]	; win
 		MOV		EAX,[ESP+24]	; x0
@@ -98,41 +97,41 @@ _api_boxfilwin:		; void api_boxfilwin( int win, int x0, int y0, int x1, int y1, 
 		POP		EDI
 		RET
 
-_api_initmalloc:	; void api_initmalloc( void );
-		PUSH		EBX
+_api_initmalloc:	; void api_initmalloc(void);
+		PUSH	EBX
 		MOV		EDX,8
-		MOV		EBX,[CS:0x0020]
+		MOV		EBX,[CS:0x0020]		; malloc領域の番地
 		MOV		EAX,EBX
-		ADD		EAX,32*1024
-		MOV		ECX,[CS:0x0000]
+		ADD		EAX,32*1024			; 32KBを足す
+		MOV		ECX,[CS:0x0000]		; データセグメントの大きさ
 		SUB		ECX,EAX
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_malloc:		; char * api_malloc( int size )
-		PUSH		EBX
+_api_malloc:		; char *api_malloc(int size);
+		PUSH	EBX
 		MOV		EDX,9
 		MOV		EBX,[CS:0x0020]
-		MOV		ECX,[ESP+8]
+		MOV		ECX,[ESP+8]			; size
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_free:		; void api_free( char * addr, int size )
-		PUSH		EBX
+_api_free:			; void api_free(char *addr, int size);
+		PUSH	EBX
 		MOV		EDX,10
 		MOV		EBX,[CS:0x0020]
-		MOV		EAX,[ESP+8]
-		MOV		ECX,[ESP+12]
+		MOV		EAX,[ESP+ 8]		; addr
+		MOV		ECX,[ESP+12]		; size
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_point:		; void api_point( int win, int x, int y, int col )
-		PUSH		EDI
-		PUSH		ESI
-		PUSH		EBX
+_api_point:		; void api_point(int win, int x, int y, int col);
+		PUSH	EDI
+		PUSH	ESI
+		PUSH	EBX
 		MOV		EDX,11
 		MOV		EBX,[ESP+16]	; win
 		MOV		ESI,[ESP+20]	; x
@@ -144,12 +143,12 @@ _api_point:		; void api_point( int win, int x, int y, int col )
 		POP		EDI
 		RET
 
-_api_refreshwin:	; void api_refreshwin( int win, int x0, int y0, int x1, int y1 );
-		PUSH		EDI
-		PUSH		ESI
-		PUSH		EBX
+_api_refreshwin:	; void api_refreshwin(int win, int x0, int y0, int x1, int y1);
+		PUSH	EDI
+		PUSH	ESI
+		PUSH	EBX
 		MOV		EDX,12
-		MOV		EBX,[ESP+16] 	; win
+		MOV		EBX,[ESP+16]	; win
 		MOV		EAX,[ESP+20]	; x0
 		MOV		ECX,[ESP+24]	; y0
 		MOV		ESI,[ESP+28]	; x1
@@ -160,18 +159,18 @@ _api_refreshwin:	; void api_refreshwin( int win, int x0, int y0, int x1, int y1 
 		POP		EDI
 		RET
 
-_api_linewin:		; void api_linewin( int win, int x0, int y0, int x1, int y1 int col )
-		PUSH		EDI
-		PUSH		ESI
-		PUSH		EBP
-		PUSH		EBX
+_api_linewin:		; void api_linewin(int win, int x0, int y0, int x1, int y1, int col);
+		PUSH	EDI
+		PUSH	ESI
+		PUSH	EBP
+		PUSH	EBX
 		MOV		EDX,13
-		MOV		EBX,[ESP+20]
-		MOV		EAX,[ESP+24]
-		MOV		ECX,[ESP+28]
-		MOV		ESI,[ESP+32]
-		MOV		EDI,[ESP+36]
-		MOV		EBP,[ESP+40]
+		MOV		EBX,[ESP+20]	; win
+		MOV		EAX,[ESP+24]	; x0
+		MOV		ECX,[ESP+28]	; y0
+		MOV		ESI,[ESP+32]	; x1
+		MOV		EDI,[ESP+36]	; y1
+		MOV		EBP,[ESP+40]	; col
 		INT		0x40
 		POP		EBX
 		POP		EBP
@@ -179,53 +178,53 @@ _api_linewin:		; void api_linewin( int win, int x0, int y0, int x1, int y1 int c
 		POP		EDI
 		RET
 
-_api_closewin:		; void api_closewin( int win )
-		PUSH		EBX
+_api_closewin:		; void api_closewin(int win);
+		PUSH	EBX
 		MOV		EDX,14
 		MOV		EBX,[ESP+8]	; win
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_getkey:		; void api_getkey( itn mode )
+_api_getkey:		; int api_getkey(int mode);
 		MOV		EDX,15
 		MOV		EAX,[ESP+4]	; mode
 		INT		0x40
 		RET
 
-_api_alloctimer:	; int api_alloctimer( void )
-		MOV		EDX, 16
+_api_alloctimer:	; int api_alloctimer(void);
+		MOV		EDX,16
 		INT		0x40
 		RET
 
-_api_inittimer:		; void api_inittimer( int timer, int data )
-		PUSH		EBX
-		MOV		EDX, 17
-		MOV		EBX,[ESP+ 8]
-		MOV		EAX,[ESP+12]
+_api_inittimer:		; void api_inittimer(int timer, int data);
+		PUSH	EBX
+		MOV		EDX,17
+		MOV		EBX,[ESP+ 8]		; timer
+		MOV		EAX,[ESP+12]		; data
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_settimer:		; void api_settimer( int timer, int time )
-		PUSH		EBX
+_api_settimer:		; void api_settimer(int timer, int time);
+		PUSH	EBX
 		MOV		EDX,18
-		MOV		EBX,[ESP+ 8]
-		MOV		EAX,[ESP+12]
+		MOV		EBX,[ESP+ 8]		; timer
+		MOV		EAX,[ESP+12]		; time
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_freetimer:		; void api_freetimer( int timer )
-		PUSH		EBX
+_api_freetimer:		; void api_freetimer(int timer);
+		PUSH	EBX
 		MOV		EDX,19
-		MOV		EBX,[ESP+ 8]
+		MOV		EBX,[ESP+ 8]		; timer
 		INT		0x40
 		POP		EBX
 		RET
 
-_api_beep:		; void api_beep( int tone )
+_api_beep:			; void api_beep(int tone);
 		MOV		EDX,20
-		MOV		EAX,[ESP+4]
+		MOV		EAX,[ESP+4]			; tone
 		INT		0x40
 		RET
