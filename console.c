@@ -260,8 +260,7 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 	struct SHTCTL * shtctl;
 	struct SHEET * sht;
 	char name[18], *p, *q;
-	int i;
-	int segsiz, esp, datsiz, dathrb;
+	int i, segsiz, esp, datsiz, dathrb;
 
 	/* コマンドラインからファイル名を生成 */
 	for (i = 0; i < 13; i++) {
@@ -406,6 +405,7 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 			i = fifo32_get( &task->fifo );
 			io_sti();
 			if ( i <= 1 ) {
+				/* アプリ実行中はカーソル非表示　*/
 				timer_init( cons->timer, &task->fifo, 1 );
 				timer_settime( cons->timer, 50 );
 			}
@@ -415,7 +415,7 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 			if ( i == 3 ) {
 				cons->cur_c = -1;
 			}
-			if ( 256 <= i ) {
+			if ( i >= 256 ) {
 				reg[7] = i - 256;
 				return 0;
 			}
@@ -429,6 +429,18 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 		timer_settime( ( struct TIMER * ) ebx, eax );
 	} else if ( edx == 19 ) {
 		timer_free( ( struct TIMER * ) ebx );
+	} else if ( edx == 20 ) {
+		if ( eax == 0 ) {
+			i = io_in8( 0x61 );
+			io_out8( 0x61, i & 0x0d );
+		} else {
+			i = 1193180000 / eax;
+			io_out8( 0x43, 0xb6 );
+			io_out8( 0x42, i & 0xff );
+			io_out8( 0x42, i >> 8 );
+			i = io_in8( 0x61 );
+			io_out8( 0x61, ( i | 0x03) & 0x0f );
+		}
 	}
 	return 0;
 }
