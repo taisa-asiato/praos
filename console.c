@@ -299,7 +299,7 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 			for (i = 0; i < datsiz; i++) {
 				q[esp + i] = p[dathrb + i];
 			}
-			start_app(0x1b, 1003 * 8, esp, 1004 * 8, &(task->tss.esp0));
+			start_app(0x1b, task->sel + 1000 * 8, esp, task->sel + 2000 * 8, &(task->tss.esp0));
 			shtctl = (struct SHTCTL *) *((int *) 0x0fe4);
 			for (i = 0; i < MAX_SHEETS; i++) {
 				sht = &(shtctl->sheets0[i]);
@@ -348,8 +348,8 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 		sht->flags |= 0x10;
 		sheet_setbuf(sht, (char *) ebx + ds_base, esi, edi, eax);
 		make_window8((char *) ebx + ds_base, esi, edi, (char *) ecx + ds_base, 0);
-		sheet_slide( sht, (shtctl->xsize - esi)/2, (shtctl->ysize - edi)/2 );
-		sheet_updown(sht, shtctl->top );	/* 3Ç∆Ç¢Ç§çÇÇ≥ÇÕtask_aÇÃè„ */
+		sheet_slide(sht, (shtctl->xsize - esi)/2, (shtctl->ysize - edi)/2);
+		sheet_updown(sht, shtctl->top);	/* 3Ç∆Ç¢Ç§çÇÇ≥ÇÕtask_aÇÃè„ */
 		reg[7] = (int) sht;
 	} else if (edx == 6) {
 		sht = (struct SHEET *) (ebx & 0xfffffffe);
