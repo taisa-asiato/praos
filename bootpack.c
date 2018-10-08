@@ -43,7 +43,7 @@ void HariMain(void)
 		0,   0,   0,   '_', 0,   0,   0,   0,   0,   0,   0,   0,   0,   '|', 0,   0
 	};
 	int key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
-	int j, x, y, mmx = -1, mmy = -1;
+	int j, x, y, mmx = -1, mmy = -1, mmx2 = 0;
 	struct SHEET *sht = 0, *key_win;
 
 	init_gdtidt();
@@ -76,7 +76,7 @@ void HariMain(void)
 	init_screen8(buf_back, binfo->scrnx, binfo->scrny);
 
 	/* sht_cons */
-	for ( i = 0 ; i < 2 ; i++ ) {
+	for (i = 0; i < 2; i++) {
 		sht_cons[i] = sheet_alloc(shtctl);
 		buf_cons[i] = (unsigned char *) memman_alloc_4k(memman, 256 * 165);
 		sheet_setbuf(sht_cons[i], buf_cons[i], 256, 165, -1); /* 透明色なし */
@@ -95,9 +95,9 @@ void HariMain(void)
 		*((int *) (task_cons[i]->tss.esp + 8)) = memtotal;
 		task_run(task_cons[i], 2, 2); /* level=2, priority=2 */
 		sht_cons[i]->task = task_cons[i];
-		sht_cons[i]->flags |= 0x20; /* カーソルあり */
-		cons_fifo[i] = ( int * ) memman_alloc_4k( memman, 128 * 4 );
-		fifo32_init( &task_cons[i]->fifo, 128, cons_fifo[i], task_cons[i] );
+		sht_cons[i]->flags |= 0x20;	/* カーソルあり */
+		cons_fifo[i] = (int *) memman_alloc_4k(memman, 128 * 4);
+		fifo32_init(&task_cons[i]->fifo, 128, cons_fifo[i], task_cons[i]);
 	}
 
 	/* sht_mouse */
@@ -111,10 +111,10 @@ void HariMain(void)
 	sheet_slide(sht_cons[1], 56,  6);
 	sheet_slide(sht_cons[0],  8,  2);
 	sheet_slide(sht_mouse, mx, my);
-	sheet_updown(sht_back,  0);
+	sheet_updown(sht_back,     0);
 	sheet_updown(sht_cons[1],  1);
 	sheet_updown(sht_cons[0],  2);
-	sheet_updown(sht_mouse, 3);
+	sheet_updown(sht_mouse,    3);
 	key_win = sht_cons[0];
 	keywin_on(key_win);
 
@@ -156,7 +156,7 @@ void HariMain(void)
 						s[0] += 0x20;	/* 大文字を小文字に変換 */
 					}
 				}
-				if (s[0] != 0) { /* 通常文字 */
+				if (s[0] != 0) { /* 通常文字、バックスペース、Enter */
 					fifo32_put(&key_win->task->fifo, s[0] + 256);
 				}
 				if (i == 256 + 0x0f) {	/* Tab */
@@ -246,13 +246,14 @@ void HariMain(void)
 									if (sht->buf[y * sht->bxsize + x] != sht->col_inv) {
 										sheet_updown(sht, shtctl->top - 1);
 										if (sht != key_win) {
-											keywin_off( key_win );
+											keywin_off(key_win);
 											key_win = sht;
-											keywin_on( key_win );
+											keywin_on(key_win);
 										}
 										if (3 <= x && x < sht->bxsize - 3 && 3 <= y && y < 21) {
 											mmx = mx;	/* ウィンドウ移動モードへ */
 											mmy = my;
+											mmx2 = sht->vx0;
 										}
 										if (sht->bxsize - 21 <= x && x < sht->bxsize - 5 && 5 <= y && y < 19) {
 											/* 「×」ボタンクリック */
@@ -273,9 +274,8 @@ void HariMain(void)
 							/* ウィンドウ移動モードの場合 */
 							x = mx - mmx;	/* マウスの移動量を計算 */
 							y = my - mmy;
-							sheet_slide(sht, sht->vx0 + x, sht->vy0 + y);
-							mmx = mx;	/* 移動後の座標に更新 */
-							mmy = my;
+							sheet_slide(sht, (mmx2 + x + 2) & ~3, sht->vy0 + y);
+							mmy = my;	/* 移動後の座標に更新 */
 						}
 					} else {
 						/* 左ボタンを押していない */
