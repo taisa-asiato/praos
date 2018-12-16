@@ -21,13 +21,15 @@ DEL      = del
 OBJS_API = api001.obj api002.obj api003.obj api004.obj api005.obj api006.obj api007.obj api008.obj \
 	   api009.obj api010.obj api011.obj api012.obj api013.obj api014.obj api015.obj api016.obj \
 	   api017.obj api018.obj api019.obj api020.obj
-
+GOLIB	= $(TOOLPATH)golib00.exe
 # デフォルト動作
 
 default :
 	$(MAKE) img
 
 # ファイル生成規則
+apilib.lib : Makefile $(OBJS_API)
+	$(GOLIB) $(OBJS_API) out:apilib.lib
 
 ipl10.bin : ipl10.nas Makefile
 	$(NASK) ipl10.nas ipl10.bin ipl10.lst
@@ -58,8 +60,8 @@ hello.hrb : hello.nas Makefile
 hello2.hrb : hello2.nas Makefile
 	$(NASK) hello2.nas hello2.hrb hello2.lst
 
-a.bim : a.obj $(OBJS_API) Makefile
-	$(OBJ2BIM) @$(RULEFILE) out:a.bim map:a.map a.obj $(OBJS_API)
+a.bim : a.obj apilib.lib Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:a.bim map:a.map a.obj apilib.lib
 
 a.hrb : a.bim Makefile
 	$(BIM2HRB) a.bim a.hrb 0

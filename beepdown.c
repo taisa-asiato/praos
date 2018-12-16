@@ -1,10 +1,12 @@
+#include "apilib.h"
+/*
 void api_end(void);
 int api_getkey(int mode);
 int api_alloctimer(void);
 void api_inittimer(int timer, int data);
 void api_settimer(int timer, int time);
 void api_beep(int tone);
-
+*/
 void HariMain(void)
 {
 	int i, timer;

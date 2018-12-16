@@ -1,4 +1,4 @@
-void api_end();
+#include "apilib.h"
 
 void HariMain(void)
 {
