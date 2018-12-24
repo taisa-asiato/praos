@@ -16,7 +16,7 @@ BIM2HRB  = $(TOOLPATH)bim2hrb.exe
 RULEFILE = ../haribote.rul
 EDIMG    = $(TOOLPATH)edimg.exe
 IMGTOL   = $(TOOLPATH)imgtol.com
-GOLIB	 = $(TOOLPATH)golib00.exe 
+GOLIB    = $(TOOLPATH)golib00.exe 
 COPY     = copy
 DEL      = del
 
@@ -61,6 +61,8 @@ haribote.sys : asmhead.bin bootpack.hrb Makefile
 
 %.obj : %.nas Makefile
 	$(NASK) $*.nas $*.obj $*.lst
+
+# ƒRƒ}ƒ“ƒh
 
 clean :
 	-$(DEL) asmhead.bin

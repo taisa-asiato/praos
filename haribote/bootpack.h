@@ -96,8 +96,8 @@ void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
 #define LIMIT_BOTPAK	0x0007ffff
 #define AR_DATA32_RW	0x4092
 #define AR_CODE32_ER	0x409a
-#define AR_TSS32		0x0089
 #define AR_LDT			0x0082
+#define AR_TSS32		0x0089
 #define AR_INTGATE32	0x008e
 
 /* int.c */
@@ -214,6 +214,8 @@ struct TASK {
 	struct SEGMENT_DESCRIPTOR ldt[2];
 	struct CONSOLE *cons;
 	int ds_base, cons_stack;
+	struct FILEHANDLE *fhandle;
+	int *fat;
 };
 struct TASKLEVEL {
 	int running; /* ìÆçÏÇµÇƒÇ¢ÇÈÉ^ÉXÉNÇÃêî */
@@ -226,7 +228,7 @@ struct TASKCTL {
 	struct TASKLEVEL level[MAX_TASKLEVELS];
 	struct TASK tasks0[MAX_TASKS];
 };
-extern struct TASKCTL * taskctl;
+extern struct TASKCTL *taskctl;
 extern struct TIMER *task_timer;
 struct TASK *task_now(void);
 struct TASK *task_init(struct MEMMAN *memman);
@@ -248,6 +250,11 @@ struct CONSOLE {
 	int cur_x, cur_y, cur_c;
 	struct TIMER *timer;
 };
+struct FILEHANDLE {
+	char *buf;
+	int size;
+	int pos;
+};
 void console_task(struct SHEET *sheet, int memtotal);
 void cons_putchar(struct CONSOLE *cons, int chr, char move);
 void cons_newline(struct CONSOLE *cons);
@@ -258,10 +265,10 @@ void cmd_mem(struct CONSOLE *cons, int memtotal);
 void cmd_cls(struct CONSOLE *cons);
 void cmd_dir(struct CONSOLE *cons);
 void cmd_type(struct CONSOLE *cons, int *fat, char *cmdline);
+void cmd_exit(struct CONSOLE *cons, int *fat);
+void cmd_start(struct CONSOLE *cons, char *cmdline, int memtotal);
+void cmd_ncst(struct CONSOLE *cons, char *cmdline, int memtotal);
 int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline);
-void cmd_exit( struct CONSOLE * cons, int * fat );
-void cmd_start( struct CONSOLE * cons, char * cmdline, int memtotal );
-void cmd_ncst( struct CONSOLE * cons, char * cmdline, int memtotal );
 int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
 int *inthandler0d(int *esp);
 int *inthandler0c(int *esp);
@@ -279,6 +286,5 @@ void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
 struct FILEINFO *file_search(char *name, struct FILEINFO *finfo, int max);
 
 /* bootpack.c */
+struct TASK *open_constask(struct SHEET *sht, unsigned int memtotal);
 struct SHEET *open_console(struct SHTCTL *shtctl, unsigned int memtotal);
-struct TASK * open_constask( struct SHEET * sht, unsigned int memtotal );
-
