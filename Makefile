@@ -21,7 +21,7 @@ haribote.img : haribote/ipl20.bin haribote/haribote.sys Makefile \
 		lines/lines.hrb walk/walk.hrb noodle/noodle.hrb \
 		beepdown/beepdown.hrb color/color.hrb color2/color2.hrb sosu/sosu.hrb \
 		typeipl/typeipl.hrb type/type.hrb iroha/iroha.hrb chklang/chklang.hrb  \
-		notrec/notrec.hrb bball/bball.hrb invader/invader.hrb calc/calc.hrb
+		notrec/notrec.hrb bball/bball.hrb invader/invader.hrb calc/calc.hrb tview/tview.hrb
 	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:haribote/ipl20.bin len:512 from:0 to:0 \
 		copy from:haribote/haribote.sys to:@: \
@@ -53,6 +53,7 @@ haribote.img : haribote/ipl20.bin haribote/haribote.sys Makefile \
 		copy from:bball/bball.hrb to:@: \
 		copy from:invader/invader.hrb to:@: \
 		copy from:calc/calc.hrb to:@: \
+		copy from:tview/tview.hrb to:@: \
 		copy from:euc.txt to:@: \
 		imgout:haribote.img
 
@@ -95,6 +96,7 @@ full :
 	$(MAKE) -C bball
 	$(MAKE) -C invader
 	$(MAKE) -C calc
+	$(MAKE) -C tview
 	$(MAKE) haribote.img
 
 run_full :
@@ -145,6 +147,7 @@ clean_full :
 	$(MAKE) -C bball		clean
 	$(MAKE) -C invader		clean
 	$(MAKE) -C calc 		clean
+	$(MAKE) -C tview 		clean
 
 src_only_full :
 	$(MAKE) -C haribote		src_only
@@ -174,6 +177,7 @@ src_only_full :
 	$(MAKE) -C bball		src_only
 	$(MAKE) -C invader		src_only
 	$(MAKE) -C calc 		src_only
+	$(MAKE) -C tview 		src_only
 	-$(DEL) haribote.img
 
 refresh :
