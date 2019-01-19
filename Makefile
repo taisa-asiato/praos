@@ -22,7 +22,7 @@ haribote.img : haribote/ipl20.bin haribote/haribote.sys Makefile \
 		beepdown/beepdown.hrb color/color.hrb color2/color2.hrb sosu/sosu.hrb \
 		typeipl/typeipl.hrb type/type.hrb iroha/iroha.hrb chklang/chklang.hrb  \
 		notrec/notrec.hrb bball/bball.hrb invader/invader.hrb calc/calc.hrb tview/tview.hrb \
-		mmlplay/mmlplay.hrb
+		mmlplay/mmlplay.hrb gview/gview.hrb
 	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:haribote/ipl20.bin len:512 from:0 to:0 \
 		copy from:haribote/haribote.sys to:@: \
@@ -60,6 +60,8 @@ haribote.img : haribote/ipl20.bin haribote/haribote.sys Makefile \
 		copy from:mmldata/daigo.mml to:@: \
 		copy from:mmldata/daiku.mml to:@: \
 		copy from:mmlplay/mmlplay.hrb to:@: \
+		copy from:pictdata/night.bmp to:@: \
+		copy from:gview/gview.hrb to:@: \
 		copy from:euc.txt to:@: \
 		imgout:haribote.img
 
@@ -104,6 +106,7 @@ full :
 	$(MAKE) -C calc
 	$(MAKE) -C tview
 	$(MAKE) -C mmlplay
+	$(MAKE) -C gview
 	$(MAKE) haribote.img
 
 run_full :
@@ -156,6 +159,7 @@ clean_full :
 	$(MAKE) -C calc 		clean
 	$(MAKE) -C tview 		clean
 	$(MAKE) -C mmlplay 		clean
+	$(MAKE) -C gview 		clean
 
 src_only_full :
 	$(MAKE) -C haribote		src_only
@@ -187,6 +191,7 @@ src_only_full :
 	$(MAKE) -C calc 		src_only
 	$(MAKE) -C tview 		src_only
 	$(MAKE) -C mmlplay		src_only
+	$(MAKE) -C gview		src_only
 	-$(DEL) haribote.img
 
 refresh :
